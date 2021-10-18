@@ -2,25 +2,30 @@
 import discord
 from dotenv import load_dotenv
 from os import getenv
+from discord.ext import commands
 
 load_dotenv()
 
-client = discord.client.Client()
+bot = commands.Bot(command_prefix="!q")
+# I want a custom help message,
+# So I have to remve Discords existing help command
+bot.remove_command("help")
 
-@client.event
+@bot.listen()
 async def on_ready():
-    print("Logged in as {0.user}".format(client))
+    await bot.change_presence(activity=discord.Game(name="!qhelp"))
 
-@client.event
-async def on_message(message):
+@bot.command()
+async def help(ctx):
     """
-    listens to a message in any channel, and responds
-    accordingly
+    Prints a lovely little help message
     """
-    # We don't want the bot to endlessly reply to itself
-    if message.author == client.user:
-        return
-    if message.content.startswith("!test"):
-        await message.channel.send("This is a test message to see if everything is working.")
+    embed = discord.Embed(
+            title="Help",
+            description="Under construction",
+            color=discord.Color.blue()
+            )
+    await ctx.send(embed=embed)
 
-client.run(getenv("APP_TOKEN"))
+
+bot.run(getenv("APP_TOKEN"))
