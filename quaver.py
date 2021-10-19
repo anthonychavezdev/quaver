@@ -40,10 +40,22 @@ async def play(ctx, url=None):
     If the command is missing a url, an error is displayed.
     """
     if url is None:
-        return await ctx.send("The url is missing, try again!")
+        embed = discord.Embed(
+                title="Error!",
+                description="The url is missing, try again!",
+                color=discord.Color.red()
+                )
+        return await ctx.send(embed=embed)
+
+
     voice_state = ctx.author.voice
     if voice_state is None:
-        return await ctx.send("You need to be in a voice channel")
+        embed = discord.Embed(
+                title="Error!",
+                description="You need to be in a voice channel",
+                color=discord.Color.red()
+                )
+        return await ctx.send(embed=embed)
     else:
         voice_client = discord.utils.get(ctx.bot.voice_clients,
                                          guild=ctx.guild)
