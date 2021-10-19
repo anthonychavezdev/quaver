@@ -3,6 +3,7 @@ import discord
 from dotenv import load_dotenv
 from os import getenv
 from discord.ext import commands
+from urllib.parse import urlparse
 
 def already_in_voice_channel(voice_client):
     return voice_client and voice_client.is_connected()
@@ -47,6 +48,15 @@ async def play(ctx, url=None):
                 )
         return await ctx.send(embed=embed)
 
+    parsed_url = urlparse(url);
+
+    if parsed_url.scheme == "" or parsed_url.scheme != "http" and parsed_url.scheme != "https":
+        embed = discord.Embed(
+                title="Error!",
+                description="Only http and https protocols work for now.",
+                color=discord.Color.red()
+                )
+        return await ctx.send(embed=embed)
 
     voice_state = ctx.author.voice
     if voice_state is None:
