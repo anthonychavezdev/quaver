@@ -33,7 +33,7 @@ async def help(ctx):
 @commands.command()
 async def play(ctx, url=None):
     """
-    The play command joins a voice channel if the command issuer is in
+    The play command joins a voice channel and plays audio if the command issuer is in
     a voice channel. If the command issuer is not in a voice channel,
     an error message is displayed. If the command issuer is in a different
     voice channel than the bot, the bot moves to join that voice channel.
