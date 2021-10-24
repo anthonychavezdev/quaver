@@ -7,6 +7,10 @@ from urllib.parse import urlparse
 
 def already_in_voice_channel(voice_client):
     return voice_client and voice_client.is_connected()
+def not_valid_url(url):
+    parsed_url = urlparse(url);
+
+    return (parsed_url.scheme == "" or parsed_url.scheme != "http" and parsed_url.scheme != "https")
 
 load_dotenv()
 
@@ -48,9 +52,7 @@ async def play(ctx, url=None):
                 )
         return await ctx.send(embed=embed)
 
-    parsed_url = urlparse(url);
-
-    if parsed_url.scheme == "" or parsed_url.scheme != "http" and parsed_url.scheme != "https":
+    if not_valid_url(url):
         embed = discord.Embed(
                 title="Error!",
                 description="Only http and https protocols work for now.",
