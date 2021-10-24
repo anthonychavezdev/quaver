@@ -4,13 +4,22 @@ from dotenv import load_dotenv
 from os import getenv
 from discord.ext import commands
 from urllib.parse import urlparse
+import pafy
+from discord import FFmpegPCMAudio, PCMVolumeTransformer
+
+FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn'}
 
 def already_in_voice_channel(voice_client):
     return voice_client and voice_client.is_connected()
 def not_valid_url(url):
     parsed_url = urlparse(url);
-
     return (parsed_url.scheme == "" or parsed_url.scheme != "http" and parsed_url.scheme != "https")
+
+def get_audio(url):
+    video = pafy.new(url)
+    audio_track = video.getbestaudio()
+    converted_track = FFmpegPCMAudio(audio_track.url, **FFMPEG_OPTIONS)
+    return converted_track
 
 load_dotenv()
 
@@ -75,6 +84,10 @@ async def play(ctx, url=None):
             await voice_client.move_to(voice_state.channel)
         else:
             await voice_state.channel.connect()
+
+        audio = get_audio(url)
+        ctx.voice_client.play(audio)
+
 
 bot.add_command(play)
 
