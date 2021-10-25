@@ -14,7 +14,8 @@ def already_in_voice_channel(voice_client):
 
 def not_valid_url(url):
     parsed_url = urlparse(url);
-    return (parsed_url.scheme == "" or parsed_url.scheme != "http" and parsed_url.scheme != "https")
+    return (parsed_url.scheme == "" or parsed_url.scheme != "http"
+            and parsed_url.scheme != "https")
 
 def get_audio(url):
     video = pafy.new(url)
@@ -45,8 +46,8 @@ async def help(ctx):
     embed = discord.Embed(
             title="Help",
             description="Under construction",
-            color=discord.Color.blue()
-            )
+            color=discord.Color.blue())
+
     await ctx.send(embed=embed)
 
 @commands.command()
@@ -62,16 +63,16 @@ async def play(ctx, url=None):
         embed = discord.Embed(
                 title="Error!",
                 description="The url is missing, try again!",
-                color=discord.Color.red()
-                )
+                color=discord.Color.red())
+
         return await ctx.send(embed=embed)
 
     if not_valid_url(url):
         embed = discord.Embed(
                 title="Error!",
                 description="Only http and https protocols work for now.",
-                color=discord.Color.red()
-                )
+                color=discord.Color.red())
+
         return await ctx.send(embed=embed)
 
     voice_state = ctx.author.voice
@@ -79,19 +80,20 @@ async def play(ctx, url=None):
         embed = discord.Embed(
                 title="Error!",
                 description="You need to be in a voice channel",
-                color=discord.Color.red()
-                )
-        return await ctx.send(embed=embed)
-    else:
-        voice_client = discord.utils.get(ctx.bot.voice_clients,
-                                         guild=ctx.guild)
-        if already_in_voice_channel(voice_client):
-            await voice_client.move_to(voice_state.channel)
-        else:
-            await voice_state.channel.connect()
+                color=discord.Color.red())
 
-        audio = get_audio(url)
-        ctx.voice_client.play(audio)
+        return await ctx.send(embed=embed)
+
+    voice_client = discord.utils.get(ctx.bot.voice_clients,
+                                     guild=ctx.guild)
+
+    if already_in_voice_channel(voice_client):
+        await voice_client.move_to(voice_state.channel)
+    else:
+        await voice_state.channel.connect()
+
+    audio = get_audio(url)
+    ctx.voice_client.play(audio)
 
 
 bot.add_command(play)
