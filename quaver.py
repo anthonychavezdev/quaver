@@ -11,6 +11,7 @@ FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconne
 
 def already_in_voice_channel(voice_client):
     return voice_client and voice_client.is_connected()
+
 def not_valid_url(url):
     parsed_url = urlparse(url);
     return (parsed_url.scheme == "" or parsed_url.scheme != "http" and parsed_url.scheme != "https")
@@ -20,6 +21,10 @@ def get_audio(url):
     audio_track = video.getbestaudio()
     converted_track = FFmpegPCMAudio(audio_track.url, **FFMPEG_OPTIONS)
     return converted_track
+
+def user_not_in_voice_channel(user):
+    voice_state = user.voice
+    return (voice_state is None)
 
 load_dotenv()
 
@@ -70,7 +75,7 @@ async def play(ctx, url=None):
         return await ctx.send(embed=embed)
 
     voice_state = ctx.author.voice
-    if voice_state is None:
+    if user_not_in_voice_channel(ctx.author):
         embed = discord.Embed(
                 title="Error!",
                 description="You need to be in a voice channel",
