@@ -20,12 +20,23 @@ def not_valid_url(url):
 def get_audio(url):
     video = pafy.new(url)
     audio_track = video.getbestaudio()
-    converted_track = FFmpegPCMAudio(audio_track.url, **FFMPEG_OPTIONS)
+    converted_track = PCMVolumeTransformer(FFmpegPCMAudio(audio_track.url, **FFMPEG_OPTIONS))
     return converted_track
 
 def user_not_in_voice_channel(user):
     voice_state = user.voice
     return (voice_state is None)
+
+async def set_volume(ctx, volume):
+    if 0 <= volume <= 100:
+        new_volume = float(volume / 100)
+        ctx.voice_client.source.volume = new_volume
+    else:
+        embed = discord.Embed(
+                title="Error!",
+                description="Only enter numbers between 0 and 100",
+                color=discord.Color.red())
+        return await ctx.send(embed=embed)
 
 load_dotenv()
 
@@ -95,7 +106,45 @@ async def play(ctx, url=None):
     audio = get_audio(url)
     ctx.voice_client.play(audio)
 
+@commands.command()
+async def vol(ctx, vol=None):
+    if vol is None:
+        embed = discord.Embed(
+                title="Error!",
+                description="A value is missing, try again!",
+                color=discord.Color.red())
+
+        return await ctx.send(embed=embed)
+
+    if user_not_in_voice_channel(ctx.author):
+        embed = discord.Embed(
+                title="Error!",
+                description="You need to be in a voice channel",
+                color=discord.Color.red())
+        return await ctx.send(embed=embed)
+
+    if not already_in_voice_channel(ctx.voice_client):
+        embed = discord.Embed(
+                title="Error!",
+                description="I'm not in a voice channel, nothing is playing.",
+                color=discord.Color.red())
+        return await ctx.send(embed=embed)
+
+    try:
+        volume = int(vol)
+
+        await set_volume(ctx, volume)
+
+    except:
+        embed = discord.Embed(
+                title="Error!",
+                description="invalid value. Only use whole numbers between 0 and 100.",
+                color=discord.Color.red())
+
+        return await ctx.send(embed=embed)
+
 
 bot.add_command(play)
+bot.add_command(vol)
 
 bot.run(getenv("APP_TOKEN"))
