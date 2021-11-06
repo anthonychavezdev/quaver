@@ -144,7 +144,86 @@ async def vol(ctx, vol=None):
         return await ctx.send(embed=embed)
 
 
+@commands.command()
+async def stop(ctx):
+    if user_not_in_voice_channel(ctx.author):
+        embed = discord.Embed(
+                title="Error!",
+                description="You need to be in a voice channel.",
+                color=discord.Color.red())
+        return await ctx.send(embed=embed)
+
+    if not already_in_voice_channel(ctx.voice_client):
+        embed = discord.Embed(
+                title="Error!",
+                description="I'm not in a voice channel, nothing is playing.",
+                color=discord.Color.red())
+        return await ctx.send(embed=embed)
+
+    ctx.voice_client.stop()
+
+
+@commands.command()
+async def pause(ctx):
+    if user_not_in_voice_channel(ctx.author):
+        embed = discord.Embed(
+                title="Error!",
+                description="You need to be in a voice channel",
+                color=discord.Color.red())
+        return await ctx.send(embed=embed)
+
+    try:
+        ctx.voice_client.pause()
+    except AttributeError:
+        embed = discord.Embed(
+                title="Error!",
+                description="Nothing is playing!",
+                color=discord.Color.red())
+        return await ctx.send(embed=embed)
+
+@commands.command()
+async def resume(ctx):
+    if user_not_in_voice_channel(ctx.author):
+        embed = discord.Embed(
+                title="Error!",
+                description="You need to be in a voice channel",
+                color=discord.Color.red())
+        return await ctx.send(embed=embed)
+
+    try:
+        ctx.voice_client.resume()
+    except AttributeError:
+        embed = discord.Embed(
+                title="Error!",
+                description="Nothing is playing!",
+                color=discord.Color.red())
+        return await ctx.send(embed=embed)
+
+
+@commands.command()
+async def disconnect(ctx):
+    if user_not_in_voice_channel(ctx.author):
+        embed = discord.Embed(
+                title="Error!",
+                description="You need to be in a voice channel",
+                color=discord.Color.red())
+        return await ctx.send(embed=embed)
+
+    if already_in_voice_channel(ctx.voice_client):
+        ctx.voice_client.stop()
+        await ctx.voice_client.disconnect()
+    else:
+        embed = discord.Embed(
+                title="Error!",
+                description="I'm not in a voice channel",
+                color=discord.Color.red())
+        return await ctx.send(embed=embed)
+
 bot.add_command(play)
 bot.add_command(vol)
+bot.add_command(stop)
+bot.add_command(pause)
+bot.add_command(resume)
+bot.add_command(disconnect)
 
 bot.run(getenv("APP_TOKEN"))
