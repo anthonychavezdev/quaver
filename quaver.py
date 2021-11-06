@@ -6,6 +6,12 @@ from discord.ext import commands
 from urllib.parse import urlparse
 import pafy
 from discord import FFmpegPCMAudio, PCMVolumeTransformer
+import logging
+logger = logging.getLogger('discord')
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler(filename="quaver.log", encoding="utf-8", mode="w")
+handler.setFormatter(logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
+logger.addHandler(handler)
 
 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn'}
 
