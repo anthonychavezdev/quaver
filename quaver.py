@@ -79,10 +79,32 @@ async def help(ctx):
     """
     Prints a lovely little help message
     """
-    embed = discord.Embed(
-            title="Help",
-            description="Under construction",
-            color=discord.Color.blue())
+    embed = create_embed("Help", "Here are the commands you can run", "Informative")
+    embed.add_field (
+        name="!qhelp",
+        value="Displays this help message",
+        inline=True
+    )
+    embed.add_field (
+        name="!qplay",
+        value="Plays a song given a url",
+        inline=True
+    )
+    embed.add_field (
+        name="!qstop",
+        value="Stops playing the currently playing song and clears the song queue",
+        inline=True
+    )
+    embed.add_field (
+        name="!qpause",
+        value="Pauses the currently playing song",
+        inline=True
+    )
+    embed.add_field (
+        name="!qresume",
+        value="Resumes a paused song. Pausing is different from stopping",
+        inline=True
+    )
 
     await ctx.send(embed=embed)
 
