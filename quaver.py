@@ -94,6 +94,11 @@ async def help(ctx):
         inline=True
     )
     embed.add_field (
+        name="!qvol, !qv",
+        value="Sets the bots volume",
+        inline=True
+    )
+    embed.add_field (
         name="!qstop",
         value="Stops playing the currently playing song and clears the song queue",
         inline=True
@@ -104,9 +109,34 @@ async def help(ctx):
         inline=True
     )
     embed.add_field (
-        name="!qresume",
+        name="!qresume, !qr",
         value="Resumes a paused song. Pausing is different from stopping",
         inline=True
+    )
+    embed.add_field (
+        name="!qqueue, !qq",
+        value="Displays the song queue",
+        inline=True
+    )
+    embed.add_field (
+        name="!qnext, !qn",
+        value="Move forwards in the queue",
+        inline=True
+    )
+    embed.add_field (
+        name="!qprev, !qp",
+        value="Move backwards in the queue",
+        inline=True
+    )
+    embed.add_field (
+        name="!qdisconnect, !qdisc, !qdis",
+        value="Disconnect the bot from vc",
+        inline=True
+    )
+    embed.add_field (
+        name="WARNING",
+        value="Sometimes YouTube will give you a 403\nIf the song you want to play doesn't work, and it's in a queue, try going back in the queue, and forward to try playing the song again.",
+        inline=False
     )
 
     await ctx.send(embed=embed)
@@ -222,7 +252,7 @@ async def pause(ctx):
 
         return await ctx.send(embed=embed)
 
-@commands.command()
+@commands.command(aliases=["qr"])
 async def resume(ctx):
     if user_not_in_voice_channel(ctx.author):
         embed = create_embed("Error!", "You need to be in a voice channel", "Error")
