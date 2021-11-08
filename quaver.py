@@ -15,6 +15,9 @@ logger.addHandler(handler)
 
 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn'}
 
+songs = []
+songTitles = []
+songIndex = 0
 
 def bot_in_voice_channel(voice_client):
     """
@@ -144,8 +147,17 @@ async def play(ctx, url=None):
     else:
         await user_voice.channel.connect()
 
+    global songs
+    global songTitles
+    global songIndex
+    video = pafy.new(url, gdata=False)
+    songTitles.append(video.title)
+    songs.append(url)
+    if len(songs) > 1:
+        embed = create_embed("Song Queue", "Added song to queue", "Informative")
+        return await ctx.send(embed=embed)
 
-    audio = get_audio(url)
+    audio = get_audio(songs[songIndex])
     playSong(ctx, audio)
 
 @commands.command(aliases=["v"])
@@ -178,6 +190,11 @@ async def vol(ctx, vol=None):
 
 @commands.command()
 async def stop(ctx):
+    global songTitles
+    global songIndex
+    songs.clear()
+    songTitles.clear()
+    songIndex = 0
     if user_not_in_voice_channel(ctx.author):
         embed = create_embed("Error!", "You need to be in a voice channel.", "Error")
 
@@ -222,6 +239,11 @@ async def resume(ctx):
 
 @commands.command(aliases=["dis", "disc"])
 async def disconnect(ctx):
+    global songTitles
+    global songIndex
+    songs.clear()
+    songTitles.clear()
+    songIndex = 0
     if user_not_in_voice_channel(ctx.author):
         embed = create_embed("Error!", "You need to be in a voice channel", "Error")
 
@@ -233,6 +255,55 @@ async def disconnect(ctx):
 
         return await ctx.send(embed=embed)
 
+@commands.command(aliases=["next", "n"])
+async def nextSong(ctx):
+    global songIndex
+    global songs
+    songIndex = songIndex + 1
+    if songIndex >= len(songs):
+        embed = create_embed("Error", "No songs left in queue", "Error")
+        songIndex = len(songs) - 1
+        return await ctx.send(embed=embed)
+
+    if user_not_in_voice_channel(ctx.author):
+        embed = create_embed("Error!", "You need to be in a voice channel", "Error")
+        return await ctx.send(embed=embed)
+
+    if not bot_in_voice_channel(ctx.voice_client):
+        embed = create_embed("Error!", "I'm not in a voice channel, nothing is playing.", "Error")
+        return await ctx.send(embed=embed)
+    ctx.voice_client.stop()
+    audio = get_audio(songs[songIndex])
+    playSong(ctx, audio)
+
+@commands.command(aliases=["prev", "p"])
+async def prevSong(ctx):
+    global songIndex
+    global songs
+    print(songIndex)
+    songIndex = songIndex - 1
+    if songIndex < 0:
+        embed = create_embed("Error!", "No songs left in queue", "Error")
+        songIndex = 0
+        return await ctx.send(embed=embed)
+
+    if user_not_in_voice_channel(ctx.author):
+        embed = create_embed("Error!", "You need to be in a voice channel.", "Error")
+        return await ctx.send(embed=embed)
+
+    if not bot_in_voice_channel(ctx.voice_client):
+        embed = create_embed("Error!", "I'm not in a voice channel, nothing is playing.", "Error")
+        return await ctx.send(embed=embed)
+    ctx.voice_client.stop()
+    audio = get_audio(songs[songIndex])
+    playSong(ctx, audio)
+
+@commands.command(aliases=["q"])
+async def queue(ctx):
+    global songTitles
+
+    embed = create_embed("Queue", str("\n".join(songTitles)), "Informative")
+    return await ctx.send(embed=embed)
 
 bot.add_command(play)
 bot.add_command(vol)
@@ -240,5 +311,8 @@ bot.add_command(stop)
 bot.add_command(pause)
 bot.add_command(resume)
 bot.add_command(disconnect)
+bot.add_command(nextSong)
+bot.add_command(prevSong)
+bot.add_command(queue)
 
 bot.run(getenv("APP_TOKEN"))
